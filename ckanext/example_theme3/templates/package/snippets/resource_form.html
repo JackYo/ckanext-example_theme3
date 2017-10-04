@@ -78,15 +78,84 @@
       <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Finish') }}{% endblock %}</button>
       {% endblock %}
       {% block chk_button %}
-      <button class="btn btn-danger" name="save" value="go-dataset-complete" type="submit">Check</button>
+      <!--<input type="file" id="files" name="files[]" value="Check" style="display:none"  multiple />-->
+      <input class="btn btn-danger" type="file" id="files" name="files[]" value="Check"  multiple />
+      <output id="list"></output>
       {% endblock %}
     {% else %}
       {% block add_button %}
       <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
       {% endblock %}
       {% block edit_chk_button %}
-      <button class="btn btn-danger" name="save" value="go-dataset-complete" type="submit">Check</button>
+      <button class="btn btn-danger" name="save" value="go-dataset-complete" type="submit">Check2</button>
       {% endblock %}
     {% endif %}
   </div>
 </form>
+
+<script language="JavaScript">
+var re = /\(?\d{3}\)?([-\/\.])\d{3}\1\d{4}/;
+
+function fileSelected(evt) {
+  var files = evt.target.files; // FileList object
+  // Loop through the FileList and render image files as thumbnails.
+  document.getElementById('list').innerHTML = "";
+
+  for (var i = 0, f; f = files[i]; i++) {
+
+    // Only process image files.
+    //if (!f.type.match('image.*')) {
+    //  continue;
+    //}
+
+    var reader = new FileReader();
+    
+    // Closure to capture the file information.
+    reader.onload = (function(theFile) {
+      return function(e) {
+        // check text patter
+        var tempStr = "SUSPICION: ";
+        var results = e.target.result.split(",");
+        var pass = true;
+        for (var i = 0, result;  result = results[i] ; i++){
+          var chk = testInfo(result);
+          if (chk == true)
+          {
+            tempStr += result;
+            tempStr += ", ";
+            pass = false;
+          }
+        }
+        if (pass == true) tempStr += "Not Found";
+        // Render thumbnail.
+        var span = document.createElement('span');
+        span.innerHTML = ['<p>', tempStr,'</p>'].join('');
+        document.getElementById('list').insertBefore(span, null);
+      };
+    })(f);
+    // Read in the image file as a data URL.
+    reader.readAsText(f);
+  }
+
+}
+
+function testInfo(phoneInput)
+{
+  var OK = re.exec(phoneInput);
+
+  if (!OK)
+  {
+    //window.alert(RegExp.input + " isn't a phone number with area code!");
+    return false;
+  }
+    else
+  {
+    //window.alert("Thanks, your phone number is " + OK[0]);
+    return true;
+  }
+}
+
+document.getElementById('files').addEventListener('change', fileSelected, false);
+
+</script>
+
