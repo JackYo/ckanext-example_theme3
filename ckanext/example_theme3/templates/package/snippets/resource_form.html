@@ -94,7 +94,6 @@
 </form>
 
 <script language="JavaScript">
-var re = /\(?\d{3}\)?([-\/\.])\d{3}\1\d{4}/;
 
 function fileSelected(evt) {
   var files = evt.target.files; // FileList object
@@ -114,22 +113,30 @@ function fileSelected(evt) {
     reader.onload = (function(theFile) {
       return function(e) {
         // check text patter
-        var tempStr = "SUSPICION: ";
-        var results = e.target.result.split(",");
+        var suspArray = [];
+        var lines = e.target.result.split("\n");
         var pass = true;
-        for (var i = 0, result;  result = results[i] ; i++){
-          var chk = testInfo(result);
-          if (chk == true)
-          {
-            tempStr += result;
-            tempStr += ", ";
-            pass = false;
+        for (var j = 0; j < lines.length; j++){
+          
+          var tokens = lines[j].split(",");
+          for (var i = 0; i<tokens.length; i++){
+            var token = tokens[i];
+            var chk = testInfo(token);
+            if (chk == true)
+            {
+              var temp = "[ At line " + (j+1) + " : " + RegExp.$1 + " ]<br>";
+              suspArray.push(temp);
+              pass = false;
+            }
           }
         }
+
         if (pass == true) tempStr += "Not Found";
         // Render thumbnail.
+        var suspStr = suspArray.join('');
+        var rstStr = e.target.result;
         var span = document.createElement('span');
-        span.innerHTML = ['<p>', tempStr,'</p>'].join('');
+        span.innerHTML = ['<p>', rstStr,'<br><br>SUSPICIONS: ', suspStr ,'</p>'].join('');
         document.getElementById('list').insertBefore(span, null);
       };
     })(f);
@@ -139,9 +146,21 @@ function fileSelected(evt) {
 
 }
 
-function testInfo(phoneInput)
+function testInfo(input)
 {
-  var OK = re.exec(phoneInput);
+  var OK = false;
+  if ((uniOK = /(\(?\d{2,3}[\)-]?\d{3}-?\d{3,4})/.exec(input)) != null){
+    OK = true;
+    console.log(uniOK.input);
+    console.log(uniOK[0]);
+    console.log(uniOK[1]);
+  }
+  else if ((uniOK = /(^[A-Z]{1}[0-9]{9}$)/.exec(input)) != null){
+    OK = true;
+    console.log(uniOK.input);
+    console.log(uniOK[0]);
+    console.log(uniOK[1]);
+  }
 
   if (!OK)
   {
