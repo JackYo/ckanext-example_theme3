@@ -1,5 +1,22 @@
-{% import 'macros/form.html' as form %}
-
+'{% import 'macros/form.html' as form %}
+<style>
+.btn-upload {
+    position: relative;
+    overflow: hidden;
+}
+ 
+.btn-upload input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+</style>
 {% set data = data or {} %}
 {% set errors = errors or {} %}
 {% set action = form_action or h.url_for(controller='package', action='new_resource', id=pkg_name) %}
@@ -78,8 +95,12 @@
       <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Finish') }}{% endblock %}</button>
       {% endblock %}
       {% block chk_button %}
-      <!--<input type="file" id="files" name="files[]" value="Check" style="display:none"  multiple />-->
-      <input class="btn btn-danger" type="file" id="files" name="files[]" value="Check"  multiple />
+      <!--<input type="file" id="files1" name="files[]" value="Check" style="display:none"  multiple />-->
+      <!--<input class="btn btn-danger" type="file" id="files" name="files[]" value style="width: 74px; display:inline-block;"  multiple />-->
+      <a class="btn btn-warning btn-upload">
+        <span>檢測</span>
+        <input id="files" type="file">
+      </a>
       <output id="list"></output>
       {% endblock %}
     {% else %}
@@ -131,12 +152,18 @@ function fileSelected(evt) {
           }
         }
 
-        if (pass == true) tempStr += "Not Found";
         // Render thumbnail.
         var suspStr = suspArray.join('');
         var rstStr = e.target.result;
         var span = document.createElement('span');
-        span.innerHTML = ['<p>', rstStr,'<br><br>SUSPICIONS: ', suspStr ,'</p>'].join('');
+        if (pass == true){
+          suspStr = "恭喜！這份文件沒有包含電話、身分證、電子郵件等訊息";
+          span.innerHTML = ['<br>', suspStr].join('');
+        }
+        else{
+        //span.innerHTML = ['<p>', rstStr,'<br><br>SUSPICIONS: ', suspStr ,'</p>'].join('');
+          span.innerHTML = ['<br>疑似隱私資料： ', suspStr].join('');
+        }
         document.getElementById('list').insertBefore(span, null);
       };
     })(f);
@@ -149,17 +176,23 @@ function fileSelected(evt) {
 function testInfo(input)
 {
   var OK = false;
+  //check phone number
   if ((uniOK = /(\(?\d{2,3}[\)-]?\d{3}-?\d{3,4})/.exec(input)) != null){
     OK = true;
-    console.log(uniOK.input);
-    console.log(uniOK[0]);
-    console.log(uniOK[1]);
+    //console.log(uniOK.input);
+    //console.log(uniOK[0]);
+    //console.log(uniOK[1]);
   }
-  else if ((uniOK = /(^[A-Z]{1}[0-9]{9}$)/.exec(input)) != null){
+  //check Taiwan ID
+  if ((uniOK = /([a-zA-Z]{1}[0-9]{9})/.exec(input)) != null){
     OK = true;
-    console.log(uniOK.input);
-    console.log(uniOK[0]);
-    console.log(uniOK[1]);
+    //console.log(uniOK.input);
+    //console.log(uniOK[0]);
+    //console.log(uniOK[1]);
+  }
+  //check Email
+  if ((uniOK = /([\w.]+@.+(\.[a-z]+)+)/.exec(input)) != null){
+    OK = true;
   }
 
   if (!OK)
@@ -167,7 +200,7 @@ function testInfo(input)
     //window.alert(RegExp.input + " isn't a phone number with area code!");
     return false;
   }
-    else
+  else
   {
     //window.alert("Thanks, your phone number is " + OK[0]);
     return true;
