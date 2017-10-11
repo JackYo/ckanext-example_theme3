@@ -176,23 +176,27 @@ function fileSelected(evt) {
 function testInfo(input)
 {
   var OK = false;
-  //check phone number
-  if ((uniOK = /(\(?\d{2,3}[\)-]?\d{3}-?\d{3,4})/.exec(input)) != null){
-    OK = true;
-    //console.log(uniOK.input);
-    //console.log(uniOK[0]);
-    //console.log(uniOK[1]);
-  }
-  //check Taiwan ID
-  if ((uniOK = /([a-zA-Z]{1}[0-9]{9})/.exec(input)) != null){
-    OK = true;
-    //console.log(uniOK.input);
-    //console.log(uniOK[0]);
-    //console.log(uniOK[1]);
-  }
-  //check Email
+  // check email
   if ((uniOK = /([\w.]+@.+(\.[a-z]+)+)/.exec(input)) != null){
     OK = true;
+  }
+  // check Taiwan ID
+  else if ((uniOK = /([a-zA-Z]{1}[0-9]{9})/.exec(input)) != null){
+    OK = true;
+    //console.log(uniOK.input);
+    //console.log(uniOK[0]);
+    //console.log(uniOK[1]);
+  }
+  // check cell phone number
+  else if ((uniOK = /([\+0]\d{3}-?\d{3}-?\d{3})/.exec(input)) != null){
+    OK = true
+  }
+  // check phone number
+  else if ((uniOK = /(\(?\d{2,3}[\)-]?\d{3}-?\d{3,4})/.exec(input)) != null){
+    OK = true;
+    //console.log(uniOK.input);
+    //console.log(uniOK[0]);
+    //console.log(uniOK[1]);
   }
 
   if (!OK)
