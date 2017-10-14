@@ -203,7 +203,7 @@ function testInfo(input)
     OK = true
   }
   // check phone number
-  else if ((uniOK = /(\(?\d{1,3}[\)-]?\d{3}-?\d{3,4})/.exec(input)) != null){
+  else if ((uniOK = /(^\(?\d{2,4}[\)-]?\d{3}-?\d{3,4}$)/.exec(input)) != null){
     OK = true;
     //console.log(uniOK.input);
     //console.log(uniOK[0]);
