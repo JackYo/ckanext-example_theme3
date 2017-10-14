@@ -95,11 +95,9 @@
       <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Finish') }}{% endblock %}</button>
       {% endblock %}
       {% block chk_button %}
-      <!--<input type="file" id="files1" name="files[]" value="Check" style="display:none"  multiple />-->
-      <!--<input class="btn btn-danger" type="file" id="files" name="files[]" value style="width: 74px; display:inline-block;"  multiple />-->
       <a class="btn btn-warning btn-upload">
         <span>檢測</span>
-        <input id="files" type="file">
+        <input id="files" type="file" title="選擇文字檔，檢測文字內容是否包含隱私資料" accept="text/*,.csv,.rdf"  multiple>
       </a>
       <output id="list"></output>
       {% endblock %}
@@ -108,13 +106,21 @@
       <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
       {% endblock %}
       {% block edit_chk_button %}
-      <button class="btn btn-danger" name="save" value="go-dataset-complete" type="submit">Check2</button>
+      <a class="btn btn-warning btn-upload">
+        <span>檢測</span>
+        <input id="files" type="file" title="選擇文字檔，檢測文字內容是否包含隱私資料" accept="text/*,.csv,.rdf"  multiple>
+      </a>
+      <output id="list"></output>
       {% endblock %}
     {% endif %}
   </div>
 </form>
 
 <script language="JavaScript">
+
+var fileTypes = [
+  'text/*',
+]
 
 function fileSelected(evt) {
   var files = evt.target.files; // FileList object
@@ -123,10 +129,15 @@ function fileSelected(evt) {
 
   for (var i = 0, f; f = files[i]; i++) {
 
-    // Only process image files.
-    //if (!f.type.match('image.*')) {
-    //  continue;
-    //}
+    // Only process txt files.
+    //if (!f.type.match('text/csv') ) {
+    var span = document.createElement('span');
+    if (validFileType(f)){
+      hintStr = "此檔案格式無法檢測，請嘗試 csv/txt/rdf 類型的檔案";
+      span.innerHTML = ['<br>===== ',f.name,' =====<br>', hintStr].join('');
+      document.getElementById('list').insertBefore(span, null);
+      continue;
+    }
 
     var reader = new FileReader();
     
@@ -162,7 +173,7 @@ function fileSelected(evt) {
         }
         else{
         //span.innerHTML = ['<p>', rstStr,'<br><br>SUSPICIONS: ', suspStr ,'</p>'].join('');
-          span.innerHTML = ['<br>疑似隱私資料： ', suspStr].join('');
+          span.innerHTML = ['<br>===== ',theFile.name,' =====<br>疑似隱私資料： ', suspStr].join('');
         }
         document.getElementById('list').insertBefore(span, null);
       };
@@ -188,11 +199,11 @@ function testInfo(input)
     //console.log(uniOK[1]);
   }
   // check cell phone number
-  else if ((uniOK = /([\+0]\d{3}-?\d{3}-?\d{3})/.exec(input)) != null){
+  else if ((uniOK = /(09\d{2}-?\d{3}-?\d{3})/.exec(input)) != null){
     OK = true
   }
   // check phone number
-  else if ((uniOK = /(\(?\d{2,3}[\)-]?\d{3}-?\d{3,4})/.exec(input)) != null){
+  else if ((uniOK = /(\(?\d{1,3}[\)-]?\d{3}-?\d{3,4})/.exec(input)) != null){
     OK = true;
     //console.log(uniOK.input);
     //console.log(uniOK[0]);
@@ -209,6 +220,16 @@ function testInfo(input)
     //window.alert("Thanks, your phone number is " + OK[0]);
     return true;
   }
+}
+
+function validFileType(file) {
+  for(var i = 0; i < fileTypes.length; i++) {
+    if(file.type === fileTypes[i]) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 document.getElementById('files').addEventListener('change', fileSelected, false);
